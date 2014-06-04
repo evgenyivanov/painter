@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Painter</title>
+
+<style type="text/css">
+   body{padding:20px; font-size:14px; color:#000000; font-family:Arial, Helvetica, sans-serif;}
+   h2 {font-weight:bold; color:#000099; margin:10px 0px; }
+   p span {color:#006600; font-weight:bold; }
+   a, a:link, a:visited {color:#0000FF;}
+   textarea {width: 100%; padding: 10px; margin: 10px 0 15px 0; font-size: 13px; font-family: Consolas,monospace;}
+   textarea.html {height: 300px;}
+   p {margin: 0 0 10px 0;}
+   code, pre {font-family: Consolas,monospace; color: green;}
+   ol li {margin: 0 0 15px 0;}
+</style>
+
+<link rel="stylesheet" href="/static/css/style.css">
+<script type='text/javascript' src='/static/js/jquery-1.9.0.js'></script>
+<script src="/static/js/jquery-ui-1.10.0.custom.js"></script>
+<script src="/static/js/painter.js"></script>
+
+</head>
+
+<body>
+
+
+<div id='cssmenu'>
+<ul>
+   <li class='has-sub'><a href='#'><span>File</span></a>
+      <ul>
+         <li><a href='#' onclick="nw('');"><span>New</span></a></li>
+         <li><a href='#' onclick="opn('');"><span>Open</span></a></li>
+         <li><a href='#' onclick="sv('')"><span>Save</span></a></li>
+         <li><a href='#' onclick="save_as('')"><span>Save as</span></a></li>
+      </ul>
+   </li>
+
+   <li class='has-sub'><a href='#'><span>Edit</span></a>
+      <ul>
+         <li><a href='#' onclick="undo('');"><span>Undo</span></a></li>
+         <li><a href='#' onclick="rotor('');"><span>Rotate</span></a></li>
+         <li><a href='#' onclick="resize('');"><span>Resize</span></a></li>
+      </ul>
+   </li>
+
+   <li class='has-sub'><a href='#'><span>Filters</span></a>
+      <ul>
+         <li><a href='#' onclick="greyscale('');"><span>Grey scale</span></a></li>
+         <li><a href='#' onclick="serpia('')"><span>Serpia</span></a></li>
+         <li><a href='#' onclick="to_red('')"><span>Red</span></a></li>
+         <li><a href='#' onclick="brightens(0.1)"><span>Brightens</span></a></li>
+         <li><a href='#' onclick='$( "#clarity" ).dialog("open");'><span>Exposure</span></a></li>
+         <li><a href='#' onclick="invert('');"><span>Invert colors</span></a></li>
+         <li><a href='#' onclick="noise('');"><span>Noise</span></a></li>
+         <li><a href='#' onclick="median('');"><span>Median</span></a></li>
+         <li><a href='#' onclick="sharpen('');"><span>Sharpen</span></a></li>
+         </ul>
+   </li>
+
+
+</ul>
+</div>
+<div style="clear:both; margin: 0 0 30px 0;">&nbsp;</div>
+
+<div id="menu">
+<button type="button" name="" value="" class="css3button" onclick="window.tp=1;window.fl_line = 0;zoom_cursor_undo('');">Line</button>
+<button type="button" name="" value="" class="css3button" onclick="window.tp=2;window.fl_line = 0;zoom_cursor_undo('');">Broken line</button>
+<button type="button" name="" value="" class="css3button" onclick="window.tp=3;window.fl_line = 0;zoom_cursor_undo('');">Rectangle</button>
+<button type="button" name="" value="" class="css3button" onclick="window.tp=4;window.fl_line = 0;zoom_cursor_undo('');">Circle</button>
+<button type="button" name="" value="" class="css3button" onclick="window.tp=5;window.fl_line = 0;document.body.style.cursor = 'text' ;">Text</button>
+<button type="button" name="" value="" class="css3button" onclick="window.tp=6;window.fl_line = 0;zoom_cursor_undo('');">Brush</button>
+<button type="button" name="" value="" class="css3button" onclick="window.tp=7;window.fl_line = 0;zoom_cursor_undo('');">Snowflake</button>
+<button type="button" name="" value="" class="css3button" onclick="window.tp=8;window.fl_line = 0;zoom_cursor_undo('');">Fill</button>
+<!--
+<button type="button" name="" value="" class="css3button" onclick="window.tp=8;window.fl_line = 0; zoom_cursor('');">Zoom</button>
+-->
+<div>
+<div id="drw">
+
+<canvas id='draw'>Upgrade the browser, please</canvas>
+   <script>
+function mousemove(){
+
+ if (window.tp==6){
+
+ if (window.drag==1){
+window.x1 = event.pageX - parseInt($("#draw").css("left"));
+window.y1 = event.pageY-parseInt($("#draw").css("top"));
+canvas = document.getElementById("draw");
+ var obCanvas = canvas.getContext('2d');
+ obCanvas.beginPath();
+ obCanvas.fillStyle = window.clr;
+ obCanvas.arc(window.x1,window.y1,window.t,0,Math.PI*2,true);
+ obCanvas.fill();
+
+ }}
+
+
+ if (window.tp==7){ // Snowflake
+ if (window.drag==1){
+window.x1 = event.pageX - parseInt($("#draw").css("left"));
+window.y1 = event.pageY-parseInt($("#draw").css("top"));
+canvas = document.getElementById("draw");
+ var obCanvas = canvas.getContext('2d');
+ obCanvas.beginPath();
+ obCanvas.fillStyle = window.clr;
+ obCanvas.arc(window.x1,window.y1,window.t,0,Math.PI*2,true);
+ var r = Math.sqrt((canvas.width/2-window.x1)*(canvas.width/2-window.x1)+(canvas.height/2-window.y1)*(canvas.height/2-window.y1));
+ //angle
+ kol = (canvas.height/2-window.y1)/r;
+
+x1 = canvas.width/2-window.x1;
+y1 = canvas.height/2-window.y1;
+x2= canvas.width/2 + x1;
+y2 = canvas.height/2 + y1;
+obCanvas.arc(x2,y2,window.t,0,Math.PI*2,true);
+
+angle=Math.asin(kol);
+obCanvas.fill();
+
+
+ }}
+
+}
+     var example = document.getElementById("draw");
+     example.width  = {{canvasw}};
+     example.height = {{canvash}};
+     var ctx = example.getContext('2d');
+     var pic = new Image();
+     pic.src = '{{url_img}}';
+     pic.onload = function() {
+     ctx.drawImage(pic, 0, 0);
+     example.onmousemove = mousemove;
+     example.onmouseup = doMouseUp;
+     }
+   </script>
+</div>
+
+<div id="buttons">
+<button style="background:black; color: white; width: 75px;" onclick="window.clr = 'black';">Black</button><br>
+<button style="background:white; width: 75px;" onclick="window.clr = 'white';">White</button><br>
+<button style="background:yellow; width: 75px;" onclick="window.clr = 'yellow';">Yellow</button><br>
+<button style="background:brown; width: 75px;" onclick="window.clr = 'brown';">Brown</button><br>
+<button style="background:green; width: 75px;" onclick="window.clr = 'green';">Green</button><br>
+<button style="background:orange; width: 75px;" onclick="window.clr = 'orange';">Orange</button><br>
+<button style="background:pink; width: 75px;" onclick="window.clr = 'pink';">Pink</button><br>
+<button style="background:blue; width: 75px;" onclick="window.clr = 'blue';">Blue</button><br>
+<button style="background:red; width: 75px;" onclick="window.clr = 'red';">Red</button><br>
+<button style="background:purple; width: 75px;" onclick="window.clr = 'purple';">Purple</button><br>
+<button style="background:turquoise; width: 75px;" onclick="window.clr = 'turquoise';">Turquoise</button><br>
+<br>
+<br>
+<button onclick="window.t=1;">1 px</button></br>
+<button onclick="window.t=2;">2 px</button></br>
+<button onclick="window.t=3;">3 px</button></br>
+<button onclick="window.t=4;">4 px</button></br>
+<button onclick="window.t=5;">5 px</button></br>
+<button onclick="window.t=6;">6 px</button></br>
+</div>
+<br>
+
+
+<div id = "vdz">
+<video id="video" width="{{canvasw}}" height="{{canvash}}" autoplay></video>
+<br/> <button id="snap">Photo</button></div>
+
+<div id="upload" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title=""><br>
+Upload file from <br><br>
+<a href="#" onclick="upload_computer('')">Computer</a> &nbsp;&nbsp;<a href="#" onclick="vd('')">Web camera </a>
+</div>
+
+<div id="upload_computer" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title=""><br><br>
+<form action="/upload/" method="post" enctype="multipart/form-data">
+<input type="file" name="file" id="file"/> <input type="submit">
+</form>
+</div>
+
+<div id="upload_internet" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title=""><br><br>
+<form action="/upload_internet/" method="post" enctype="multipart/form-data">
+URL: <input size="70" type="text" name="url" id="url"/> <input type="submit">
+</form>
+
+<div id="new" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title="">
+<form action="/new/" method="post" enctype="multipart/form-data"><br>
+Size:<br><br>
+<input  type="number" name="w" id="w" min="1" max="800" value="600"/> &nbsp;&nbsp;<input  type="number" name="h" id="h" min="1" max="700" value="400"/><br><br><input type="submit">
+</form>
+</div>
+
+<div id="rotate" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title="">
+<form action="/rotate/" method="post" enctype="multipart/form-data"><br>
+degrees:<br><br>
+<input  type="number" name="arg" id="arg" min="-360" max="306" value="90"/><br><br><input type="submit">
+</form>
+</div>
+
+<div id="resize" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title="">
+<form action="/resize/" method="post" enctype="multipart/form-data"><br>
+Size:<br><br>
+width: <input  type="number" name="w" id="w" min="1" max="800" value="{{canvasw}}"/> &nbsp;&nbsp;height: <input  type="number" name="h" id="h" min="1" max="700" value="{{canvash}}"/><br><br><input type="submit">
+</form>
+</div>
+
+<div id="text" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title="">
+<br>
+Font:<select name = 'font' id ='font'>
+<option value="Arial" >Arial</option>
+<option value="Arial Black">Arial Black</option>
+<option value="Arial Narrow">Arial Narrow</option>
+<option value="Book antiqua">Book antiqua</option>
+<option value="Centry Gothi">Centry Gothic</option>
+<option value="Comic Sans Ms">Comic Sans Ms</option>
+<option value="Courier New">Courier New</option>
+<option value="Fixedsys">Fixedsys</option>
+<option value="Franclin Gothic Medium">Franclin Gothic Medium</option>
+<option value="Garamond">Garamond</option>
+<option value="Georgia">Georgia</option>
+<option value="Impact">Impact</option>
+<option value="Lucida Console">Lucida Console</option>
+<option value="Microsoft Sans Serif">Microsoft Sans Serif</option>
+<option value="Palatino Linotype">Palatino Linotype</option>
+<option value="System">System</option>
+<option value="Tahoma">Tahoma</option>
+<option value="Times New Roman">Times New Roman</option>
+<option value="Trebuchet MS">Trebuchet MS</option>
+<option value="Verdana">Verdana</option>
+</select>
+
+<select id="ff" name="ff">
+<option value="Normal">Normal</option>
+<option value="Bold">Bold</option>
+<option value="Italic">Italic</option>
+</select></br><br>
+
+Size: <select name="sz" id="sz">
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+<option value="22">22</option>
+<option value="23">23</option>
+<option value="24">24</option>
+<option value="25">25</option>
+<option value="26">26</option>
+<option value="27">27</option>
+<option value="28">28</option>
+<option value="29">29</option>
+<option value="29">29</option>
+</select>
+
+<input type="checkbox" name="stroke" id="stroke" value="">Stroke</p>
+
+<textarea id='txt4' name="txt4" style="width: 245px;"></textarea>
+<br><button onclick="txt3('');">OK</button>
+</div>
+
+<div id="clarity" style=" border: solid black 2px; border-radius: 30; box-shadow:0px 0px 5px #000; text-align: center; background-color: #ffffff;" title="">
+<br>
+<input type="range" min="1" max="7" step="1" value="1" id="step">
+<br><button onclick="exposure('');">OK</button>
+</div>
+
+</body>
